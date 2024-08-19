@@ -13,6 +13,9 @@
 		E4B2C2EE2C737F860074EF5F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4B2C2ED2C737F860074EF5F /* Preview Assets.xcassets */; };
 		E4B2C2F02C737F860074EF5F /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B2C2EF2C737F860074EF5F /* Persistence.swift */; };
 		E4B2C2F32C737F860074EF5F /* clip_board_app.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E4B2C2F12C737F860074EF5F /* clip_board_app.xcdatamodeld */; };
+		E4B2C3002C7380060074EF5F /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B2C2FF2C7380060074EF5F /* ClipboardMonitor.swift */; };
+		E4B2C3012C7380060074EF5F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B2C2FE2C7380060074EF5F /* AppDelegate.swift */; };
+		E4B2C3032C7382E60074EF5F /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E4B2C3022C7382E60074EF5F /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,7 +26,10 @@
 		E4B2C2ED2C737F860074EF5F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E4B2C2EF2C737F860074EF5F /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		E4B2C2F22C737F860074EF5F /* clip_board_app.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = clip_board_app.xcdatamodel; sourceTree = "<group>"; };
-		E4B2C2F42C737F860074EF5F /* clip_board_app.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = clip_board_app.entitlements; sourceTree = "<group>"; };
+		E4B2C2FE2C7380060074EF5F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E4B2C2FF2C7380060074EF5F /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
+		E4B2C3022C7382E60074EF5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E4B2C3042C7383AC0074EF5F /* clip_board_app.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = clip_board_app.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,13 +62,16 @@
 		E4B2C2E52C737F850074EF5F /* clip-board-app */ = {
 			isa = PBXGroup;
 			children = (
+				E4B2C2FE2C7380060074EF5F /* AppDelegate.swift */,
+				E4B2C2FF2C7380060074EF5F /* ClipboardMonitor.swift */,
 				E4B2C2E62C737F850074EF5F /* clip_board_appApp.swift */,
 				E4B2C2E82C737F850074EF5F /* ContentView.swift */,
 				E4B2C2EA2C737F860074EF5F /* Assets.xcassets */,
 				E4B2C2EF2C737F860074EF5F /* Persistence.swift */,
-				E4B2C2F42C737F860074EF5F /* clip_board_app.entitlements */,
 				E4B2C2F12C737F860074EF5F /* clip_board_app.xcdatamodeld */,
 				E4B2C2EC2C737F860074EF5F /* Preview Content */,
+				E4B2C3022C7382E60074EF5F /* Info.plist */,
+				E4B2C3042C7383AC0074EF5F /* clip_board_app.entitlements */,
 			);
 			path = "clip-board-app";
 			sourceTree = "<group>";
@@ -135,6 +144,7 @@
 			files = (
 				E4B2C2EE2C737F860074EF5F /* Preview Assets.xcassets in Resources */,
 				E4B2C2EB2C737F860074EF5F /* Assets.xcassets in Resources */,
+				E4B2C3032C7382E60074EF5F /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +155,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4B2C3012C7380060074EF5F /* AppDelegate.swift in Sources */,
+				E4B2C3002C7380060074EF5F /* ClipboardMonitor.swift in Sources */,
 				E4B2C2F02C737F860074EF5F /* Persistence.swift in Sources */,
 				E4B2C2E92C737F850074EF5F /* ContentView.swift in Sources */,
 				E4B2C2F32C737F860074EF5F /* clip_board_app.xcdatamodeld in Sources */,
@@ -268,6 +280,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
@@ -278,14 +291,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "clip-board-app/clip_board_app.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"clip-board-app/Preview Content\"";
+				DEVELOPMENT_TEAM = DBJ6KVSZ88;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Clipboard;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UILaunchStoryboardName = "Clipboard Wizard.icns";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -303,14 +323,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "clip-board-app/clip_board_app.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"clip-board-app/Preview Content\"";
+				DEVELOPMENT_TEAM = DBJ6KVSZ88;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Clipboard;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UILaunchStoryboardName = "Clipboard Wizard.icns";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

@@ -1,29 +1,45 @@
-//
-//  ContentView.swift
-//  clip-board-app
-//
-//  Created by Kumar Deepanshu on 8/19/24.
-//
-
 import SwiftUI
 import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \ClipboardItem.timestamp, ascending: false)],
         animation: .default)
-    private var items: FetchedResults<Item>
-
+    private var items: FetchedResults<ClipboardItem>
+    @State private var copiedItemId: NSManagedObjectID?
+    @State private var hoveredItemId: NSManagedObjectID?
+    @StateObject private var clipboardMonitor = ClipboardMonitor()
+    
     var body: some View {
-        NavigationView {
+        VStack {
             List {
                 ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(item.content ?? "")
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                            Text(item.timestamp!, formatter: itemFormatter)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        if copiedItemId == item.objectID {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
+                    }
+                    .background(hoveredItemId == item.objectID ? Color.gray.opacity(0.1) : Color.clear)
+                    .onTapGesture {
+                        copyToClipboard(item.content ?? "")
+                        copiedItemId = item.objectID
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            copiedItemId = nil
+                        }
+                    }
+                    .onHover { isHovered in
+                        hoveredItemId = isHovered ? item.objectID : nil
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -35,20 +51,34 @@ struct ContentView: View {
                     }
                 }
             }
-            Text("Select an item")
+            HStack {
+                Button(action: quitApp) {
+                    Label("Quit", systemImage: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                }
+                .padding()
+            }
         }
+        .onAppear {
+            clipboardMonitor.startMonitoring(context: viewContext)
+        }
+    }
+
+    private func copyToClipboard(_ content: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(content, forType: .string)
     }
 
     private func addItem() {
         withAnimation {
-            let newItem = Item(context: viewContext)
+            let newItem = ClipboardItem(context: viewContext)
             newItem.timestamp = Date()
+            newItem.content = "New item \(Date())"
+            newItem.type = "text"
 
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
@@ -62,12 +92,14 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+    }
+
+    private func quitApp() {
+        NSApplication.shared.terminate(nil)
     }
 }
 
@@ -77,7 +109,3 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .medium
     return formatter
 }()
-
-#Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-}

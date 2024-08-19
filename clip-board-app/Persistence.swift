@@ -1,10 +1,3 @@
-//
-//  Persistence.swift
-//  clip-board-app
-//
-//  Created by Kumar Deepanshu on 8/19/24.
-//
-
 import CoreData
 
 struct PersistenceController {
