@@ -10,11 +10,17 @@ struct ContentView: View {
     @State private var copiedItemId: NSManagedObjectID?
     @State private var hoveredItemId: NSManagedObjectID?
     @StateObject private var clipboardMonitor = ClipboardMonitor()
-    
+    @State private var searchText = "" // Add search text state variable
+
     var body: some View {
         VStack {
+            // Search input field at the top
+            TextField("Search here...", text: $searchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+
             List {
-                ForEach(items) { item in
+                ForEach(filteredItems) { item in
                     HStack {
                         VStack(alignment: .leading) {
                             Text(item.content ?? "")
@@ -61,6 +67,14 @@ struct ContentView: View {
         }
         .onAppear {
             clipboardMonitor.startMonitoring(context: viewContext)
+        }
+    }
+
+    private var filteredItems: [ClipboardItem] {
+        if searchText.isEmpty {
+            return items.map { $0 }
+        } else {
+            return items.filter { $0.content?.localizedCaseInsensitiveContains(searchText) == true }
         }
     }
 
