@@ -6,6 +6,13 @@ struct clip_board_appApp: App {
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
+        MenuBarExtra {
+            EmptyView()
+        } label: {
+            Image(systemName: "doc.on.clipboard")
+        }
+        .menuBarExtraStyle(.window)
+        
         WindowGroup {
             EmptyView()
         }

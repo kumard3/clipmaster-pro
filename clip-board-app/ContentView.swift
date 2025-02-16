@@ -119,9 +119,9 @@ struct SearchBar: View {
                 .foregroundColor(.gray)
             TextField("Search here...", text: $text)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: text) { newValue in
+                .onChange(of: text, { oldValue, newValue in
                     onSearchChanged(newValue)
-                }
+                })
         }
     }
 }

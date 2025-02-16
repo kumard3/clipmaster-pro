@@ -25,7 +25,7 @@ xcodebuild -project clip-board-app.xcodeproj \
   -configuration Release \
   -derivedDataPath build \
   -archivePath build/clip-board-app.xcarchive \
-  MACOSX_DEPLOYMENT_TARGET=13.0 \
+  MACOSX_DEPLOYMENT_TARGET=14.0 \
   archive
 
 # Create zip
