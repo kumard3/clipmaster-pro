@@ -7,8 +7,12 @@ struct MenuBarView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var clipboardMonitor = ClipboardMonitor()
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \ClipboardItem.timestamp, ascending: false)],
-        fetchLimit: 10
+        fetchRequest: {
+            let request = ClipboardItem.fetchRequest()
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \ClipboardItem.timestamp, ascending: false)]
+            request.fetchLimit = 10
+            return request
+        }()
     ) private var recentItems: FetchedResults<ClipboardItem>
     
     var body: some View {

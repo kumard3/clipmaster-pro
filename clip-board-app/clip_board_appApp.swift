@@ -6,7 +6,7 @@ struct clip_board_appApp: App {
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
-        Settings {
+        WindowGroup {
             EmptyView()
         }
         .commands {
