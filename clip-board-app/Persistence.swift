@@ -33,7 +33,7 @@ struct PersistenceController {
             description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
             
             // Configure memory management
-            description.setOption(true as NSNumber, forKey: NSPersistentStoreSaveOptionsKey)
+            description.setOption(true as NSNumber, forKey: "NSPersistentStoreOptionsKey")
             description.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
             description.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
         }

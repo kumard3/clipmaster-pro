@@ -11,11 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: "14.2"
 
       - name: Set Build Number
         run: |
@@ -24,15 +26,21 @@ jobs:
 
       - name: Build App
         run: |
-          xcodebuild -scheme "clip-board-app" \
+          # Update deployment target in project settings
+          /usr/libexec/PlistBuddy -c "Set :DTSDKName macosx13.1" clip-board-app.xcodeproj/project.pbxproj
+          /usr/libexec/PlistBuddy -c "Set :DTXcodeBuild 14C18" clip-board-app.xcodeproj/project.pbxproj
+
+          xcodebuild -project clip-board-app.xcodeproj \
+            -scheme "clip-board-app" \
             -configuration Release \
             -derivedDataPath build \
             -archivePath build/clip-board-app.xcarchive \
+            MACOSX_DEPLOYMENT_TARGET=13.0 \
             archive
 
           # Create app bundle
           cd build/clip-board-app.xcarchive/Products/Applications/
-          zip -r ../../../../Clipboard-Wizard.zip "Clipboard Wizard.app"
+          zip -r ../../../../ClipMaster-Pro.zip "clip-board-app.app"
 
       - name: Create Release
         id: create_release
@@ -41,9 +49,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Clipboard Wizard ${{ env.VERSION }}
+          release_name: ClipMaster Pro ${{ env.VERSION }}
           body: |
-            Clipboard Wizard Release ${{ env.VERSION }}
+            ClipMaster Pro Release ${{ env.VERSION }}
             Build Number: ${{ env.BUILD_NUMBER }}
 
             ## What's Changed
@@ -63,6 +71,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Clipboard-Wizard.zip
-          asset_name: Clipboard-Wizard-${{ env.VERSION }}.zip
+          asset_path: ./ClipMaster-Pro.zip
+          asset_name: ClipMaster-Pro-${{ env.VERSION }}.zip
           asset_content_type: application/zip
