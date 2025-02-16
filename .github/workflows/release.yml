@@ -1,0 +1,68 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Set Build Number
+        run: |
+          echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Build App
+        run: |
+          xcodebuild -scheme "clip-board-app" \
+            -configuration Release \
+            -derivedDataPath build \
+            -archivePath build/clip-board-app.xcarchive \
+            archive
+
+          # Create app bundle
+          cd build/clip-board-app.xcarchive/Products/Applications/
+          zip -r ../../../../Clipboard-Wizard.zip "Clipboard Wizard.app"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Clipboard Wizard ${{ env.VERSION }}
+          body: |
+            Clipboard Wizard Release ${{ env.VERSION }}
+            Build Number: ${{ env.BUILD_NUMBER }}
+
+            ## What's Changed
+            * Auto-generated release for version ${{ env.VERSION }}
+
+            ## Installation
+            1. Download the zip file
+            2. Extract the app
+            3. Move to Applications folder
+            4. Double click to run
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Clipboard-Wizard.zip
+          asset_name: Clipboard-Wizard-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
