@@ -22,6 +22,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Remove the app from the dock
         NSApp.setActivationPolicy(.accessory)
         
+        // Clean up old clipboard items to improve performance
+        PersistenceController.shared.cleanupOldItems()
+        
         // Create the status bar item
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusBarItem.button {

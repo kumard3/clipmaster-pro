@@ -3,14 +3,17 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    
     @FetchRequest(
+        entity: ClipboardItem.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \ClipboardItem.timestamp, ascending: false)],
         animation: .default)
     private var items: FetchedResults<ClipboardItem>
+    
     @State private var copiedItemId: NSManagedObjectID?
-    @State private var hoveredItemId: NSManagedObjectID?
     @StateObject private var clipboardMonitor = ClipboardMonitor()
-    @State private var searchText = "" // Add search text state variable
+    @State private var searchText = ""
+    @State private var displayLimit: Int = 50
 
     var body: some View {
         VStack {
@@ -21,34 +24,24 @@ struct ContentView: View {
 
             List {
                 ForEach(filteredItems) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.content ?? "")
-                                .lineLimit(2)
-                                .truncationMode(.tail)
-                            Text(item.timestamp!, formatter: itemFormatter)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    ClipboardItemRow(item: item, isSelected: copiedItemId == item.objectID)
+                        .onTapGesture {
+                            copyToClipboard(item.content ?? "")
+                            copiedItemId = item.objectID
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                copiedItemId = nil
+                            }
                         }
-                        Spacer()
-                        if copiedItemId == item.objectID {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                        }
-                    }
-                    .background(hoveredItemId == item.objectID ? Color.gray.opacity(0.1) : Color.clear)
-                    .onTapGesture {
-                        copyToClipboard(item.content ?? "")
-                        copiedItemId = item.objectID
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            copiedItemId = nil
-                        }
-                    }
-                    .onHover { isHovered in
-                        hoveredItemId = isHovered ? item.objectID : nil
-                    }
                 }
                 .onDelete(perform: deleteItems)
+                
+                if items.count > displayLimit && filteredItems.count == displayLimit {
+                    Button("Load More...") {
+                        displayLimit += 50
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
+                }
             }
             .toolbar {
                 ToolbarItem {
@@ -66,8 +59,10 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            clipboardMonitor.startMonitoring(context: viewContext)
+            // Pass the background context directly
+            clipboardMonitor.startMonitoring(context: PersistenceController.shared.backgroundContext)
         }
+    
     }
 
     private var filteredItems: [ClipboardItem] {
@@ -123,3 +118,31 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .medium
     return formatter
 }()
+
+struct ClipboardItemRow: View {
+    let item: ClipboardItem
+    let isSelected: Bool
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(item.content ?? "")
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                Text(item.timestamp!, formatter: itemFormatter)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+            }
+        }
+        .padding(.vertical, 4)
+        .background(isHovered ? Color.gray.opacity(0.1) : Color.clear)
+        .onHover { isHovered = $0 }
+    }
+}
+
