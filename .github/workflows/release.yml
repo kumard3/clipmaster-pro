@@ -8,35 +8,44 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    permissions:
+      contents: write # Needed for creating releases
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # Updated to v4
         with:
           submodules: recursive
+          fetch-depth: 0 # Needed for correct build numbering
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "15.2"
+          xcode-version: "latest-stable" # Use latest stable instead of specific version
 
       - name: Set Build Number
         run: |
           echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_ENV
           echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "Building version: ${GITHUB_REF#refs/tags/v}, build: $(git rev-list --count HEAD)"
 
       - name: Build App
         run: |
-          # Update deployment target in project settings
-          /usr/libexec/PlistBuddy -c "Set :DTSDKName macosx13.1" clip-board-app.xcodeproj/project.pbxproj
-          /usr/libexec/PlistBuddy -c "Set :DTXcodeBuild 14C18" clip-board-app.xcodeproj/project.pbxproj
+          # Print Xcode version for debugging
+          xcodebuild -version
 
+          # List available schemes
+          xcodebuild -project clip-board-app.xcodeproj -list
+
+          # Build without modifying plist settings (let Xcode choose appropriate settings)
           xcodebuild -project clip-board-app.xcodeproj \
             -scheme "clip-board-app" \
             -configuration Release \
             -derivedDataPath build \
             -archivePath build/clip-board-app.xcarchive \
-            MACOSX_DEPLOYMENT_TARGET=13.0 \
             archive
+
+          # Verify the build output
+          ls -la build/clip-board-app.xcarchive/Products/Applications/
 
           # Create app bundle
           cd build/clip-board-app.xcarchive/Products/Applications/
@@ -44,12 +53,9 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1 # Updated to modern release action
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ClipMaster Pro ${{ env.VERSION }}
+          name: ClipMaster Pro ${{ env.VERSION }}
           body: |
             ClipMaster Pro Release ${{ env.VERSION }}
             Build Number: ${{ env.BUILD_NUMBER }}
@@ -64,13 +70,4 @@ jobs:
             4. Double click to run
           draft: false
           prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ClipMaster-Pro.zip
-          asset_name: ClipMaster-Pro-${{ env.VERSION }}.zip
-          asset_content_type: application/zip
+          files: ./ClipMaster-Pro.zip
