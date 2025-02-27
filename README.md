@@ -4,9 +4,9 @@
 
 ![ClipMaster Pro Logo](Assets.xcassets/AppIcon.appiconset/icon_128x128.png)
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/yourusername/clipmaster-pro)](https://github.com/yourusername/clipmaster-pro/releases)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kumard3/clipmaster-pro)](https://github.com/kumard3/clipmaster-pro/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![macOS](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://github.com/yourusername/clipmaster-pro)
+[![macOS](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://github.com/kumard3/clipmaster-pro)
 
 A powerful, lightweight clipboard manager for macOS that lives in your menu bar.
 
@@ -31,7 +31,7 @@ A powerful, lightweight clipboard manager for macOS that lives in your menu bar.
 
 ### Option 1: Direct Download
 
-1. Download the latest release from the [releases page](https://github.com/yourusername/clipmaster-pro/releases)
+1. Download the latest release from the [releases page](https://github.com/kumard3/clipmaster-pro/releases)
 2. Extract the zip file
 3. Move ClipMaster Pro to your Applications folder
 4. Double-click to start
@@ -40,7 +40,7 @@ A powerful, lightweight clipboard manager for macOS that lives in your menu bar.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/clipmaster-pro.git
+git clone https://github.com/kumard3/clipmaster-pro.git
 
 # Open in Xcode
 cd clipmaster-pro

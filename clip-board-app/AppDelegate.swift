@@ -1,105 +1,50 @@
 import Cocoa
 import SwiftUI
-import CoreData
-
-// Add MenuBarView definition here temporarily for testing
-struct MenuBarView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    @StateObject private var clipboardMonitor = ClipboardMonitor()
-    @FetchRequest(
-        fetchRequest: {
-            let request = ClipboardItem.fetchRequest()
-            request.sortDescriptors = [NSSortDescriptor(keyPath: \ClipboardItem.timestamp, ascending: false)]
-            request.fetchLimit = 10
-            return request
-        }()
-    ) private var recentItems: FetchedResults<ClipboardItem>
-    
-    var body: some View {
-        Text("Temporary MenuBarView")
-            .frame(width: 360, height: 400)
-    }
-}
-
-// Add SettingsView definition here temporarily for testing
-struct SettingsView: View {
-    @StateObject private var settings = Settings()
-    @Environment(\.managedObjectContext) private var viewContext
-    
-    var body: some View {
-        Text("Temporary SettingsView")
-            .frame(width: 400, height: 300)
-    }
-}
-
-// Add Settings class definition
-class Settings: ObservableObject {
-    @AppStorage("autoDeleteDays") var autoDeleteDays: Int = 30
-    @AppStorage("maxClipboardItems") var maxClipboardItems: Int = 1000
-    @AppStorage("launchAtLogin") var launchAtLogin: Bool = true
-}
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private var statusItem: NSStatusItem!
-    private var popover: NSPopover!
-    private var settingsWindow: NSWindow?
-    private var mainWindow: NSWindow?
-    
-    
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    var statusBarItem: NSStatusItem!
+    var popover: NSPopover!
+    func setupMenuBar() {
+        let mainMenu = NSMenu()
         
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Clipboard")
-        }
+        let appMenuItem = NSMenuItem(title: "App", action: nil, keyEquivalent: "")
+        let appMenu = NSMenu()
+        appMenuItem.submenu = appMenu
         
-        popover = NSPopover()
-        popover.contentSize = NSSize(width: 360, height: 400)
-        popover.behavior = .transient
-        popover.contentViewController = NSHostingController(
-            rootView: MenuBarView()
-                .environment(\EnvironmentValues.managedObjectContext, PersistenceController.shared.container.viewContext)
-        )
+        let quitMenuItem = NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(quitMenuItem)
         
-        statusItem.button?.action = #selector(togglePopover(_:))
+        mainMenu.addItem(appMenuItem)
+        NSApplication.shared.mainMenu = mainMenu
     }
-    
-    @objc func togglePopover(_ sender: AnyObject?) {
-        if let button = statusItem.button {
+
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Remove the app from the dock
+        NSApp.setActivationPolicy(.accessory)
+        
+        // Create the status bar item
+        statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if let button = statusBarItem.button {
+            button.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Clipboard")
+            button.action = #selector(togglePopover(_:))
+        }
+
+        // Create the popover
+        let contentView = ContentView()
+            .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+        popover = NSPopover()
+        popover.contentSize = NSSize(width: 300, height: 400)
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: contentView)
+    }
+
+    @objc func togglePopover(_ sender: Any?) {
+        if let button = statusBarItem.button {
             if popover.isShown {
                 popover.performClose(sender)
             } else {
                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
             }
         }
-    }
-    
-    func showSettingsWindow() {
-        if settingsWindow == nil {
-            let contentView = SettingsView()
-                .environment(\EnvironmentValues.managedObjectContext, PersistenceController.shared.container.viewContext)
-            
-            settingsWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 400, height: 300),
-                styleMask: [.titled, .closable],
-                backing: .buffered,
-                defer: false
-            )
-            settingsWindow?.center()
-            settingsWindow?.setFrameAutosaveName("Settings")
-            settingsWindow?.isReleasedWhenClosed = false
-            settingsWindow?.title = "Settings"
-            settingsWindow?.contentView = NSHostingView(rootView: contentView)
-        }
-        
-        settingsWindow?.makeKeyAndOrderFront(nil)
-    }
-    
-    func applicationWillTerminate(_ notification: Notification) {
-        // Clean up any resources
-    }
-    
-    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
-        return true
     }
 }
